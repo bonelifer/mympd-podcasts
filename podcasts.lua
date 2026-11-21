@@ -1,5 +1,5 @@
 -- {"name":"Podcasts","file":"","version":0,"order":7,"arguments":[]}
-local service = "http://127.0.0.1:18772"
+local service = "http://127.0.0.1:18774"
 local title = "Podcasts"
 local args = mympd_arguments
 

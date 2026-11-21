@@ -9,7 +9,7 @@ from pathlib import Path
 from urllib.parse import quote, urlsplit
 from urllib.request import Request, urlopen
 
-DEFAULT_SERVICE = "http://127.0.0.1:18772"
+DEFAULT_SERVICE = "http://127.0.0.1:18774"
 
 
 def call_api(endpoint, headers, payload):
