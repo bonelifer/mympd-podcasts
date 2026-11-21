@@ -73,6 +73,22 @@ Open **Podcasts** and choose what to do with the selected favorite:
 - **Find and save a podcast** searches the directory and saves a result.
 - **Remove selected podcast** removes a favorite after confirming.
 
+## Play from the command line
+
+`podcast-play.py` lists your favorites and starts a podcast's latest episode
+through myMPD, like **Play latest** in the picker.
+
+```sh
+python3 podcast-play.py --list
+python3 podcast-play.py pf2c6595bb47c
+```
+
+`--list` prints `<id>  <name>` for each favorite. Pass an id to queue the latest
+episode and start it right away, with the same title and cover metadata the
+picker uses. Use `--mympd` and `--service` for non-default addresses
+(`http://127.0.0.1:8081` and `http://127.0.0.1:18774`), `--partition` for
+another partition, and `MYMPD_SESSION` for a PIN-protected instance.
+
 ## Now Playing display
 
 Copy `podcasts-display.js` to myMPD's `pics/` directory and append
