@@ -1,0 +1,26 @@
+services:
+  podcasts:
+    image: ghcr.io/bonelifer/mympd-podcasts:latest
+    user: "${PODCASTS_UID:?Set PODCASTS_UID}:${PODCASTS_GID:?Set PODCASTS_GID}"
+    environment:
+      PODCASTINDEX_API_KEY: "${PODCASTINDEX_API_KEY:-}"
+      PODCASTINDEX_API_SECRET: "${PODCASTINDEX_API_SECRET:-}"
+    volumes:
+      - type: bind
+        source: "${PODCASTS_DATA:-./data}"
+        target: /data
+        bind:
+          create_host_path: false
+      - type: bind
+        source: "${PODCASTS_ARTWORK:-./artwork}"
+        target: /artwork
+        bind:
+          create_host_path: false
+    networks:
+      - mpd
+    restart: unless-stopped
+
+networks:
+  mpd:
+    external: true
+    name: "${MPD_NETWORK:-mpd}"
