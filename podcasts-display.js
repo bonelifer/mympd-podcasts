@@ -40,8 +40,8 @@
         const isPodcast = /^p[0-9a-f]{12}$/.test(id);
         picker.classList.toggle("d-none", !isPodcast);
         const show = metadata.get("name") ?? "";
-        const episode = metadata.get("title") ?? "";
-        const text = [show, episode].filter(Boolean).join(" — ");
+        const artist = document.getElementById("footerArtist")?.textContent ?? "";
+        const text = artist.includes(show) ? "" : show;
         for (const line of infoLines) {
             line.hidden = !isPodcast || text === "";
             if (!line.hidden) {

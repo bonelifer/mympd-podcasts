@@ -25,7 +25,7 @@ docker compose -f compose.yaml -f compose.host.yaml up --pull always -d
 ```
 
 If myMPD uses a private Docker network, start the bridge on that network
-and pass `--service http://podcasts:18772` to the installer.
+and pass `--service http://podcasts:18774` to the installer.
 
 ```sh
 export MPD_NETWORK=your-existing-mpd-network
@@ -40,7 +40,7 @@ from the picker.
 ## Run without Docker
 
 With Python 3.10 or later, run `python3 bridge.py` in the same network
-namespace as myMPD. It listens on `127.0.0.1:18772` and keeps favorites in
+namespace as myMPD. It listens on `127.0.0.1:18774` and keeps favorites in
 `data/favorites.json`. Use `--data-dir` and `--artwork-dir` to change the
 folders.
 
@@ -61,7 +61,7 @@ python3 install-picker.py --mympd http://127.0.0.1:8081 --workdir /path/to/mympd
 
 Pass `--workdir` to also add the Podcasts tile and its icon to the Home screen;
 omit it to install only the script. For a shared Docker network, pass
-`--service http://podcasts:18772`. For a PIN-protected instance, set
+`--service http://podcasts:18774`. For a PIN-protected instance, set
 `MYMPD_SESSION` to a valid session token. Use `--partition` for a different
 partition or `--replace` to update an existing picker. You can also paste
 `podcasts.lua` into the myMPD script editor as **Podcasts** with menu order 7.

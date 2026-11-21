@@ -421,7 +421,7 @@ def main() -> int:
     """Run the bridge until interrupted."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-l", "--listen", default="127.0.0.1")
-    parser.add_argument("-p", "--port", type=int, default=18772)
+    parser.add_argument("-p", "--port", type=int, default=18774)
     parser.add_argument("--data-dir", type=Path, default=Path("data"),
                         help="Folder that holds favorites.json")
     parser.add_argument("--artwork-dir", type=Path,
