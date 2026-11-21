@@ -1,6 +1,6 @@
 (() => {
     const script = document.createElement("script");
-    const url = new URL("browse/pics/podcasts-display.js?v=2", document.currentScript.src).href;
+    const url = new URL("browse/pics/podcasts-display.js?v=3", document.currentScript.src).href;
     const policy = window.trustedTypes?.createPolicy("podcasts-player", {
         createScriptURL(candidate) {
             if (candidate !== url) {
