@@ -40,6 +40,13 @@
         const isPodcast = /^p[0-9a-f]{12}$/.test(id);
         picker.classList.toggle("d-none", !isPodcast);
         const show = metadata.get("name") ?? "";
+        const episode = metadata.get("title") ?? "";
+        for (const titleId of ["PlaybackTitle", "footerTitle"]) {
+            const title = document.getElementById(titleId);
+            if (isPodcast && episode !== "" && title && title.textContent !== episode) {
+                title.textContent = episode;
+            }
+        }
         const artist = document.getElementById("footerArtist")?.textContent ?? "";
         const text = artist.includes(show) ? "" : show;
         for (const line of infoLines) {
