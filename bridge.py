@@ -36,6 +36,9 @@ MAX_JSON_BYTES = 2 * 1024 * 1024
 PODCAST_ID = re.compile(r"p[0-9a-f]{12}")
 EPISODE_ID = re.compile(r"e[0-9a-f]{12}")
 
+# "host:port" entries from --allow-feed-host that may be local addresses.
+ALLOWED_FEED_HOSTS: set[str] = set()
+
 
 def make_id(prefix: str, value: str) -> str:
     """Return a short stable ID such as p0123456789ab for a URL."""
@@ -49,12 +52,17 @@ def clip(text: str, limit: int) -> str:
 
 
 def public_url(url: str) -> bool:
-    """Accept HTTP(S) URLs whose host resolves only to public addresses."""
+    """Accept HTTP(S) URLs whose host resolves only to public addresses.
+
+    A host and port listed with --allow-feed-host skip the address check.
+    """
     target = urlsplit(url)
     if (target.scheme not in {"http", "https"} or not target.hostname
             or target.username or target.password):
         return False
     port = target.port or (443 if target.scheme == "https" else 80)
+    if f"{target.hostname}:{port}" in ALLOWED_FEED_HOSTS:
+        return True
     try:
         addresses = socket.getaddrinfo(
             target.hostname, port, type=socket.SOCK_STREAM
@@ -183,6 +191,35 @@ def parse_feed(data: bytes) -> dict:
         "image": http_url(art),
         "episodes": episodes,
     }
+
+
+def add_feed(url: str, favorites: "Favorites") -> str:
+    """Save the feed at url as a favorite, without a search, and return its ID."""
+    feed_url = http_url(url)
+    if not feed_url:
+        raise ValueError("The feed address must be an HTTP(S) URL")
+    parsed = parse_feed(fetch(feed_url, MAX_FEED_BYTES))
+    if not parsed["title"]:
+        raise ValueError("The feed has no title")
+    podcast_id = make_id("p", feed_url)
+    entry = {
+        "id": podcast_id,
+        "name": parsed["title"],
+        "author": "",
+        "feed": feed_url,
+        "artUrl": parsed["image"],
+    }
+    favorites.change(lambda items: items.setdefault(podcast_id, entry))
+    return podcast_id
+
+
+def allowed_host(value: str) -> str:
+    """Check a HOST:PORT argument and return it in the form public_url compares."""
+    host, _, port = value.strip().lower().rpartition(":")
+    if (not host or not port.isdigit() or not 0 < int(port) < 65536
+            or any(char in host for char in "/@ ")):
+        raise argparse.ArgumentTypeError("use HOST:PORT, for example 127.0.0.1:8090")
+    return f"{host}:{int(port)}"
 
 
 def cache_artwork(podcast_id: str, art_url: str, directory: Path | None) -> str:
@@ -426,12 +463,27 @@ def main() -> int:
                         help="Folder that holds favorites.json")
     parser.add_argument("--artwork-dir", type=Path,
                         help="myMPD pics/podcasts folder for cached covers")
+    parser.add_argument("--allow-feed-host", action="append", default=[],
+                        type=allowed_host, metavar="HOST:PORT",
+                        help="Let feeds and covers be fetched from this local "
+                             "host and port (repeatable)")
+    parser.add_argument("--add-feed", metavar="URL",
+                        help="Save a podcast feed as a favorite and exit")
     args = parser.parse_args()
+    ALLOWED_FEED_HOSTS.update(args.allow_feed_host)
     key = os.environ.get("PODCASTINDEX_API_KEY", "").strip()
     secret = os.environ.get("PODCASTINDEX_API_SECRET", "").strip()
     credentials = (key, secret) if key and secret else None
     socket.setdefaulttimeout(10)
     favorites = Favorites(args.data_dir / "favorites.json")
+    if args.add_feed:
+        try:
+            podcast_id = add_feed(args.add_feed, favorites)
+        except (OSError, ValueError, ET.ParseError) as error:
+            print(f"Could not add the feed: {error}", file=sys.stderr)
+            return 1
+        print(f"Saved the feed as favorite {podcast_id}.")
+        return 0
     with PodcastServer((args.listen, args.port), favorites,
                        args.artwork_dir, credentials) as server:
         print(f"Podcasts is listening on {server.server_address}.")
