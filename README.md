@@ -51,6 +51,22 @@ Podcast Index, create a free key at [podcastindex.org](https://podcastindex.org)
 and start the bridge with `PODCASTINDEX_API_KEY` and `PODCASTINDEX_API_SECRET`
 set. The search dialog then offers both directories.
 
+## Local feeds
+
+The bridge refuses feeds on your own machine or network. To use one, list
+its address with `--allow-feed-host HOST:PORT` (repeat the option for more
+than one); only that host and port skip the public-address check, and covers
+fetched from it are covered too. Search cannot find a private feed, so save
+it with `--add-feed URL`, which saves the feed as a favorite and exits.
+
+```sh
+python3 bridge.py --allow-feed-host 127.0.0.1:8090 --add-feed http://127.0.0.1:8090/feed.xml
+```
+
+Start the bridge with the same `--allow-feed-host` option so it can read the
+feed when you play it. With Docker, pass these options as the container's
+arguments.
+
 ## Install the picker
 
 Enable Lua scripting in myMPD, then install the picker.
@@ -106,7 +122,8 @@ by the bridge user, and mount it as the artwork folder (`PODCASTS_ARTWORK`, or
 
 ## Privacy and safety
 
-The bridge only downloads feeds and covers from public internet addresses and
+The bridge only downloads feeds and covers from public internet addresses
+(plus any host you list with `--allow-feed-host`) and
 refuses redirects to loopback, private, or link-local hosts. It reads feeds
 as XML without entity declarations and limits download sizes. Episode audio
 is fetched by MPD, not by the bridge.
